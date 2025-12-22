@@ -1,4 +1,32 @@
 import streamlit as st
+
+APP_PIN = st.secrets["APP_PIN"]
+
+# Initialize session state
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+# -------------------------
+# PIN Login Screen
+# -------------------------
+if not st.session_state.authenticated:
+    st.title("🔒 Enter PIN")
+
+    pin_input = st.text_input(
+        "4-digit PIN",
+        type="password",
+        max_chars=4
+    )
+
+    if st.button("Unlock"):
+        if pin_input == APP_PIN:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect PIN")
+
+    st.stop()  # 🚨 stops app from loading further
+    
 import sqlite3
 from datetime import date, timedelta
 
