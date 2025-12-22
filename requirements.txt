@@ -1,4 +1,2 @@
 streamlit
-sqlite3
-date
-timedelta
+pandas
