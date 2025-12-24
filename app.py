@@ -53,8 +53,10 @@ def get_connection():
         dbname=st.secrets["database"]["dbname"],
         user=st.secrets["database"]["user"],
         password=st.secrets["database"]["password"],
-        sslmode="require"
+        sslmode="require",
+        connect_timeout=10
     )
+
 
 conn = get_connection()
 cursor = conn.cursor()
