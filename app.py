@@ -1,10 +1,10 @@
 import streamlit as st
 
+# =========================
+# 🔐 PIN Authentication
+# =========================
 APP_PIN = st.secrets["APP_PIN"]
 
-# -------------------------
-# Authentication
-# -------------------------
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
@@ -17,7 +17,7 @@ if not st.session_state.authenticated:
         max_chars=4
     )
 
-    if st.button("Unlock"):
+    if st.button("Unlock", use_container_width=True):
         if pin_input == APP_PIN:
             st.session_state.authenticated = True
             st.rerun()
@@ -26,26 +26,26 @@ if not st.session_state.authenticated:
 
     st.stop()
 
-# -------------------------
-# Imports after auth
-# -------------------------
+# =========================
+# Imports (after auth)
+# =========================
 import psycopg2
 import pandas as pd
 from datetime import date, timedelta
 
-# -------------------------
-# Page Config
-# -------------------------
+# =========================
+# Page Config (Mobile-first)
+# =========================
 st.set_page_config(
     page_title="Workout Tracker",
     page_icon="🏋️",
-    layout="centered"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# -------------------------
+# =========================
 # Supabase Connection
-# -------------------------
-@st.cache_resource
+# =========================
 def get_connection():
     return psycopg2.connect(
         host=st.secrets["database"]["host"],
@@ -57,13 +57,12 @@ def get_connection():
         connect_timeout=10
     )
 
-
 conn = get_connection()
 cursor = conn.cursor()
 
-# -------------------------
-# Workout Data
-# -------------------------
+# =========================
+# Workout Definitions
+# =========================
 workout_data = {
     "Chest & Triceps": {
         "Warm up": ["Cycle"],
@@ -153,9 +152,9 @@ workout_data = {
     }
 }
 
-# -------------------------
+# =========================
 # Helper Functions
-# -------------------------
+# =========================
 def get_last_exercise(exercise):
     cursor.execute("""
         SELECT sets, reps, weight
@@ -190,38 +189,51 @@ def save_workout(workout_date, workout_type, data):
             ))
     conn.commit()
 
-# -------------------------
-# UI
-# -------------------------
+# =========================
+# 🏋️ UI
+# =========================
 st.title("🏋️ Workout Tracker")
 
-selected_date = st.date_input("Workout Date", date.today())
+st.markdown("### 🗓️ Workout Setup")
+
+selected_date = st.date_input("Date", date.today())
 workout_type = st.selectbox("Workout Type", workout_data.keys())
 
 workout_input = {}
 
-# -------------------------
-# Workout Entry
-# -------------------------
+# =========================
+# Workout Entry (Mobile)
+# =========================
 for section, exercises in workout_data[workout_type].items():
-    with st.expander(section, expanded=True):
+    expanded = section == "Workout"
+
+    with st.expander(section, expanded=expanded):
         workout_input[section] = {}
+
         for exercise in exercises:
             last_sets, last_reps, last_weight = get_last_exercise(exercise)
 
-            c1, c2, c3, c4 = st.columns([3, 1, 1, 1])
-            c1.write(exercise)
+            st.markdown(f"**{exercise}**")
 
-            sets = c2.number_input(
-                "Sets", min_value=0, value=last_sets,
+            sets = st.number_input(
+                "Sets",
+                min_value=0,
+                value=last_sets,
                 key=f"{selected_date}_{exercise}_sets"
             )
-            reps = c3.number_input(
-                "Reps", min_value=0, value=last_reps,
+
+            reps = st.number_input(
+                "Reps",
+                min_value=0,
+                value=last_reps,
                 key=f"{selected_date}_{exercise}_reps"
             )
-            weight = c4.number_input(
-                "Weight", min_value=0.0, step=0.5, value=last_weight,
+
+            weight = st.number_input(
+                "Weight (kg)",
+                min_value=0.0,
+                step=0.5,
+                value=last_weight,
                 key=f"{selected_date}_{exercise}_weight"
             )
 
@@ -231,29 +243,31 @@ for section, exercises in workout_data[workout_type].items():
                 "weight": weight
             }
 
-# -------------------------
-# Save
-# -------------------------
-if st.button("💾 Save Workout"):
+            st.divider()
+
+# =========================
+# Save Workout
+# =========================
+if st.button("💾 Save Workout", use_container_width=True):
     save_workout(selected_date, workout_type, workout_input)
-    st.success("Workout saved (Supabase)")
+    st.success("Workout saved")
 
-# -------------------------
-# Weekly Daily Summary
-# -------------------------
+# =========================
+# 📊 Weekly Daily Summary (Mobile cards)
+# =========================
 st.markdown("---")
-st.subheader("📊 Weekly Daily Summary")
+st.subheader("📊 Weekly Summary")
 
-week_date = st.date_input("Select week", selected_date, key="week")
+week_date = st.date_input("Select week", selected_date)
 start_week = week_date - timedelta(days=week_date.weekday())
 end_week = start_week + timedelta(days=6)
 
 cursor.execute("""
     SELECT workout_date,
-           COUNT(DISTINCT exercise) AS exercises,
-           SUM(sets) AS total_sets,
-           SUM(reps) AS total_reps,
-           SUM(sets * reps * weight) AS total_volume
+           COUNT(DISTINCT exercise),
+           SUM(sets),
+           SUM(reps),
+           SUM(sets * reps * weight)
     FROM workouts
     WHERE workout_date BETWEEN %s AND %s
     GROUP BY workout_date
@@ -264,8 +278,19 @@ rows = cursor.fetchall()
 
 if rows:
     df = pd.DataFrame(rows, columns=[
-        "Date", "Exercises", "Total Sets", "Total Reps", "Total Volume"
+        "Date", "Exercises", "Sets", "Reps", "Volume"
     ])
-    st.dataframe(df, use_container_width=True)
+
+    for _, r in df.iterrows():
+        st.markdown(
+            f"""
+            **📅 {r['Date']}**  
+            • Exercises: {r['Exercises']}  
+            • Sets: {r['Sets']}  
+            • Reps: {r['Reps']}  
+            • Volume: {round(r['Volume'], 1)}
+            """
+        )
+        st.divider()
 else:
     st.info("No workouts logged for this week")
