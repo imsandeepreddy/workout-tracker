@@ -264,27 +264,28 @@ end_week = start_week + timedelta(days=6)
 
 cursor.execute("""
     SELECT workout_date,
+           workout_type,
            COUNT(DISTINCT exercise),
            SUM(sets),
            SUM(reps),
            SUM(sets * reps * weight)
     FROM workouts
     WHERE workout_date BETWEEN %s AND %s
-    GROUP BY workout_date
-    ORDER BY workout_date
+    GROUP BY workout_date, workout_type
+    ORDER BY workout_date, workout_type
 """, (start_week, end_week))
 
 rows = cursor.fetchall()
 
 if rows:
     df = pd.DataFrame(rows, columns=[
-        "Date", "Exercises", "Sets", "Reps", "Volume"
+        "Date", "Workout Type", "Exercises", "Sets", "Reps", "Volume"
     ])
 
     for _, r in df.iterrows():
         st.markdown(
             f"""
-            **📅 {r['Date']}**  
+            **📅 {r['Date']} — {r['Workout Type']}**  
             • Exercises: {r['Exercises']}  
             • Sets: {r['Sets']}  
             • Reps: {r['Reps']}  
