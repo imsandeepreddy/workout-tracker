@@ -45,6 +45,7 @@ st.set_page_config(
 # -------------------------
 # Supabase Connection
 # -------------------------
+@st.cache_resource
 def get_connection():
     return psycopg2.connect(
         host=st.secrets["database"]["host"],
