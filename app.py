@@ -26,7 +26,7 @@ if not st.session_state.authenticated:
             st.error("Incorrect PIN")
 
     st.stop()  # 🚨 stops app from loading further
-    
+
 import sqlite3
 from datetime import date, timedelta
 
@@ -70,25 +70,78 @@ workout_data = {
             "Dumbbell Chest Flyes", "Bench Dips",
             "Dumbbell Tricep Extension", "Low Plank", "Crunches"
         ],
-        "Stretch": ["Sphinx Stretch", "Child's Pose"]
+        "Stretch": ["Sphinx Stretch", "Child's Pose",
+            "Shoulder Extension Pec Stretch",
+            "Shoulder Archer Stretch Left",
+            "Shoulder Archer Stretch Right"
+        ]
     },
     "Back & Biceps": {
         "Warm up": ["Treadmill"],
-        "Circuit set": ["World's Greatest Stretch Left", "World's Greatest Stretch Right"],
-        "Workout": ["Lat Pull Down", "Machine Seated Row", "Dumbbell Bent-over Row"],
-        "Stretch": ["Child's Pose"]
+        "Circuit set": ["World's Greatest Stretch Left",
+            "World's Greatest Stretch Right",
+            "Bent Over Y Raise",
+            "Alternate Toe Touches",
+            "Prone Swimmers"
+        ],
+        "Workout": ["Lat Pull Down", "Machine Seated Row",
+            "Dumbbell Bent-over Row",
+            "Dumbbell Seated Bicep Curl",
+            "Close Grip Bicep Curl",
+            "Side Plank Left", "Side Plank Right",
+            "Bicycle Crunches"
+        ],
+        "Stretch": [
+            "Sphinx Stretch", "Thread the Needle Left",
+            "Thread the Needle Right", "Child's Pose"
+        ]
     },
     "Legs": {
         "Warm up": ["Cycle"],
-        "Circuit set": ["Dynamic Pigeon Stretch Left", "Dynamic Pigeon Stretch Right"],
-        "Workout": ["Body Weight Squat", "Leg Press", "Machine Hamstring Curls"],
-        "Stretch": ["Butterfly Stretch"]
+        "Circuit set": ["Dynamic Pigeon Stretch Left",
+            "Dynamic Pigeon Stretch Right",
+            "Half Wipers - Scale Down",
+            "Table Top Up and Down",
+            "Side to Side Shuffle"
+        ],
+        "Workout": ["Body Weight Squat", "Leg Press",
+            "Machine Hamstring Curls",
+            "Seated Machine Calf Raise",
+            "Bird Dog", "Alternate Leg Raise"
+        ],
+        "Stretch": [
+            "Hamstring Stretch", "Child's Pose",
+            "Prone Quad Stretch Left",
+            "Prone Quad Stretch Right",
+            "Butterfly Stretch"
+        ]
     },
     "Shoulders": {
         "Warm up": ["Cross Trainer"],
-        "Circuit set": ["Cat Camel", "Deltoid Circles"],
-        "Workout": ["Machine Shoulder Press", "Dumbbell Lateral Raise"],
-        "Stretch": ["Downward Dog"]
+        "Circuit set": [
+            "World's Greatest Stretch Left",
+            "World's Greatest Stretch Right",
+            "Cat Camel", "Deltoid Circles", "Footfires"
+        ],
+        "Workout": [
+            "Machine Shoulder Press",
+            "1-arm Dumbbell Lateral Raise Left",
+            "1-arm Dumbbell Lateral Raise Right",
+            "Dumbbell Alternating Front Raise",
+            "Machine Reverse Flyes",
+            "Prone YTW",
+            "Shoulder Taps",
+            "Hollow Hold",
+            "Side Plank Left",
+            "Side Plank Right"
+        ],
+        "Stretch": [
+            "Sphinx Stretch",
+            "Lateral Neck Stretch Left",
+            "Lateral Neck Stretch Right",
+            "Pec Stretch",
+            "Downward Dog"
+        ]
     }
 }
 
