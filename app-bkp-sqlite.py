@@ -2,12 +2,13 @@ import streamlit as st
 
 APP_PIN = st.secrets["APP_PIN"]
 
-# -------------------------
-# Authentication
-# -------------------------
+# Initialize session state
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
+# -------------------------
+# PIN Login Screen
+# -------------------------
 if not st.session_state.authenticated:
     st.title("🔒 Enter PIN")
 
@@ -24,13 +25,9 @@ if not st.session_state.authenticated:
         else:
             st.error("Incorrect PIN")
 
-    st.stop()
+    st.stop()  # 🚨 stops app from loading further
 
-# -------------------------
-# Imports after auth
-# -------------------------
-import psycopg2
-import pandas as pd
+import sqlite3
 from datetime import date, timedelta
 
 # -------------------------
@@ -43,21 +40,23 @@ st.set_page_config(
 )
 
 # -------------------------
-# Supabase Connection
+# DB Setup
 # -------------------------
-@st.cache_resource
-def get_connection():
-    return psycopg2.connect(
-        host=st.secrets["database"]["host"],
-        port=st.secrets["database"]["port"],
-        dbname=st.secrets["database"]["dbname"],
-        user=st.secrets["database"]["user"],
-        password=st.secrets["database"]["password"],
-        sslmode="require"
-    )
-
-conn = get_connection()
+conn = sqlite3.connect("workouts.db", check_same_thread=False)
 cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS workouts (
+    workout_date TEXT,
+    workout_type TEXT,
+    section TEXT,
+    exercise TEXT,
+    sets INTEGER,
+    reps INTEGER,
+    weight REAL
+)
+""")
+conn.commit()
 
 # -------------------------
 # Workout Data
@@ -71,8 +70,7 @@ workout_data = {
             "Dumbbell Chest Flyes", "Bench Dips",
             "Dumbbell Tricep Extension", "Low Plank", "Crunches"
         ],
-        "Stretch": [
-            "Sphinx Stretch", "Child's Pose",
+        "Stretch": ["Sphinx Stretch", "Child's Pose",
             "Shoulder Extension Pec Stretch",
             "Shoulder Archer Stretch Left",
             "Shoulder Archer Stretch Right"
@@ -80,15 +78,13 @@ workout_data = {
     },
     "Back & Biceps": {
         "Warm up": ["Treadmill"],
-        "Circuit set": [
-            "World's Greatest Stretch Left",
+        "Circuit set": ["World's Greatest Stretch Left",
             "World's Greatest Stretch Right",
             "Bent Over Y Raise",
             "Alternate Toe Touches",
             "Prone Swimmers"
         ],
-        "Workout": [
-            "Lat Pull Down", "Machine Seated Row",
+        "Workout": ["Lat Pull Down", "Machine Seated Row",
             "Dumbbell Bent-over Row",
             "Dumbbell Seated Bicep Curl",
             "Close Grip Bicep Curl",
@@ -102,15 +98,13 @@ workout_data = {
     },
     "Legs": {
         "Warm up": ["Cycle"],
-        "Circuit set": [
-            "Dynamic Pigeon Stretch Left",
+        "Circuit set": ["Dynamic Pigeon Stretch Left",
             "Dynamic Pigeon Stretch Right",
             "Half Wipers - Scale Down",
             "Table Top Up and Down",
             "Side to Side Shuffle"
         ],
-        "Workout": [
-            "Body Weight Squat", "Leg Press",
+        "Workout": ["Body Weight Squat", "Leg Press",
             "Machine Hamstring Curls",
             "Seated Machine Calf Raise",
             "Bird Dog", "Alternate Leg Raise"
@@ -158,25 +152,22 @@ def get_last_exercise(exercise):
     cursor.execute("""
         SELECT sets, reps, weight
         FROM workouts
-        WHERE exercise = %s
-        ORDER BY workout_date DESC, created_at DESC
+        WHERE exercise = ?
+        ORDER BY workout_date DESC
         LIMIT 1
     """, (exercise,))
     row = cursor.fetchone()
     return row if row else (0, 0, 0.0)
 
 def save_workout(workout_date, workout_type, data):
-    cursor.execute("""
-        DELETE FROM workouts
-        WHERE workout_date = %s AND workout_type = %s
-    """, (workout_date, workout_type))
-
+    cursor.execute(
+        "DELETE FROM workouts WHERE workout_date = ? AND workout_type = ?",
+        (workout_date, workout_type)
+    )
     for section, exercises in data.items():
         for ex, vals in exercises.items():
             cursor.execute("""
-                INSERT INTO workouts
-                (workout_date, workout_type, section, exercise, sets, reps, weight)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO workouts VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
                 workout_date,
                 workout_type,
@@ -233,8 +224,8 @@ for section, exercises in workout_data[workout_type].items():
 # Save
 # -------------------------
 if st.button("💾 Save Workout"):
-    save_workout(selected_date, workout_type, workout_input)
-    st.success("Workout saved (Supabase)")
+    save_workout(str(selected_date), workout_type, workout_input)
+    st.success("Workout saved to database")
 
 # -------------------------
 # Weekly Daily Summary
@@ -253,17 +244,26 @@ cursor.execute("""
            SUM(reps) AS total_reps,
            SUM(sets * reps * weight) AS total_volume
     FROM workouts
-    WHERE workout_date BETWEEN %s AND %s
+    WHERE workout_date BETWEEN ? AND ?
     GROUP BY workout_date
     ORDER BY workout_date
-""", (start_week, end_week))
+""", (str(start_week), str(end_week)))
 
 rows = cursor.fetchall()
 
 if rows:
-    df = pd.DataFrame(rows, columns=[
-        "Date", "Exercises", "Total Sets", "Total Reps", "Total Volume"
-    ])
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(
+        [
+            {
+                "Date": r[0],
+                "Exercises": r[1],
+                "Total Sets": r[2],
+                "Total Reps": r[3],
+                "Total Volume": round(r[4], 1) if r[4] else 0
+            }
+            for r in rows
+        ],
+        use_container_width=True
+    )
 else:
     st.info("No workouts logged for this week")
