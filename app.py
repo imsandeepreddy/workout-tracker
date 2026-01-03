@@ -189,10 +189,9 @@ def save_workout(workout_date, workout_type, data):
             ))
     conn.commit()
 
-def get_exercise_gif(exercise_name):
-    if exercise_name.lower() == "pushups":
-        return "https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/main/exercises/incline_dumbbell_chest_press.mp4"
-    return None
+def get_exercise_video(exercise_name):
+    slug = exercise_name.lower().replace(" ", "_")
+    return f"https://raw.githubusercontent.com/<username>/<repo>/main/exercises/{slug}.mp4"
 
 # =========================
 # 🏋️ UI
