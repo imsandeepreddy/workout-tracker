@@ -219,16 +219,13 @@ for section, exercises in workout_data[workout_type].items():
 
             st.markdown(f"**{exercise}**")
 
-            gif_url = get_exercise_gif(exercise)
+            video_url = get_exercise_video(exercise)
 
-            if gif_url:
-                show_demo = st.toggle(
-                    "Show demo",
-                    key=f"demo_{selected_date}_{exercise}"
-                )
+            if video_url:
+                show_demo = st.toggle("Show demo", key=f"video_{exercise}")
 
                 if show_demo:
-                    st.video(gif_url)
+                    st.video(video_url)
 
             sets = st.number_input(
                 "Sets",
