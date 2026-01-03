@@ -229,7 +229,7 @@ for section, exercises in workout_data[workout_type].items():
                 )
 
                 if show_demo:
-                    st.video(gif_url, use_column_width=True)
+                    st.video(gif_url)
 
             sets = st.number_input(
                 "Sets",
