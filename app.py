@@ -191,7 +191,7 @@ def save_workout(workout_date, workout_type, data):
 
 def get_exercise_gif(exercise_name):
     if exercise_name.lower() == "pushups":
-        return "https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/main/exercises/pushups.gif"
+        return "https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/main/exercises/incline_dumbbell_chest_press.mp4"
     return None
 
 # =========================
