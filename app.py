@@ -189,6 +189,11 @@ def save_workout(workout_date, workout_type, data):
             ))
     conn.commit()
 
+def get_exercise_gif(exercise_name):
+    if exercise_name.lower() == "pushups":
+        return "https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/main/exercises/pushups.gif"
+    return None
+
 # =========================
 # 🏋️ UI
 # =========================
@@ -214,6 +219,17 @@ for section, exercises in workout_data[workout_type].items():
             last_sets, last_reps, last_weight = get_last_exercise(exercise)
 
             st.markdown(f"**{exercise}**")
+
+            gif_url = get_exercise_gif(exercise)
+
+            if gif_url:
+                show_demo = st.toggle(
+                    "Show demo",
+                    key=f"demo_{selected_date}_{exercise}"
+                )
+
+                if show_demo:
+                    st.image(gif_url, use_column_width=True)
 
             sets = st.number_input(
                 "Sets",
