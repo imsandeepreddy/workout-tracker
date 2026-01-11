@@ -68,9 +68,9 @@ workout_data = {
         "Warm up": ["Cycle"],
         "Circuit set": ["High Knees", "Prone Walkout", "Deltoid Circles", "Kettlebell Halo"],
         "Workout": [
-            "Pushups", "Incline Dumbbell Chest Press", "Dumbbell Chest Press",
-            "Dumbbell Chest Flyes", "Bench Dips",
-            "Dumbbell Tricep Extension", "Low Plank", "Crunches"
+            "Incline Dumbbell Chest Press", "Dumbbell Chest Press",
+            "Dumbbell Chest Flyes",
+            "Dumbbell Tricep Extension", "Dead bug", "Heel slides", "Incline plank on bench"
         ],
         "Stretch": [
             "Sphinx Stretch", "Child's Pose",
@@ -94,7 +94,7 @@ workout_data = {
             "Dumbbell Seated Bicep Curl",
             "Close Grip Bicep Curl",
             "Side Plank Left", "Side Plank Right",
-            "Bicycle Crunches"
+            "Bird dog", "Standing dumbbell march hold"
         ],
         "Stretch": [
             "Sphinx Stretch", "Thread the Needle Left",
@@ -114,7 +114,7 @@ workout_data = {
             "Body Weight Squat", "Leg Press",
             "Machine Hamstring Curls",
             "Seated Machine Calf Raise",
-            "Bird Dog", "Alternate Leg Raise"
+            "Bird Dog", "Glute bridge hold", "Marching bridge"
         ],
         "Stretch": [
             "Hamstring Stretch", "Child's Pose",
@@ -137,8 +137,8 @@ workout_data = {
             "Dumbbell Alternating Front Raise",
             "Machine Reverse Flyes",
             "Prone YTW",
-            "Shoulder Taps",
-            "Hollow Hold",
+            "Wall shoulder taps",
+            "Dead bug hold",
             "Side Plank Left",
             "Side Plank Right"
         ],
