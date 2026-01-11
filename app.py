@@ -158,7 +158,7 @@ workout_data = {
 def get_last_exercise(exercise):
     cursor.execute("""
         SELECT sets, reps, weight
-        FROM workouts
+        FROM anu_workouts
         WHERE exercise = %s
         ORDER BY workout_date DESC, created_at DESC
         LIMIT 1
@@ -168,14 +168,14 @@ def get_last_exercise(exercise):
 
 def save_workout(workout_date, workout_type, data):
     cursor.execute("""
-        DELETE FROM workouts
+        DELETE FROM anu_workouts
         WHERE workout_date = %s AND workout_type = %s
     """, (workout_date, workout_type))
 
     for section, exercises in data.items():
         for ex, vals in exercises.items():
             cursor.execute("""
-                INSERT INTO workouts
+                INSERT INTO anu_workouts
                 (workout_date, workout_type, section, exercise, sets, reps, weight)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """, (
@@ -281,7 +281,7 @@ cursor.execute("""
            SUM(sets),
            SUM(reps),
            SUM(sets * reps * weight)
-    FROM workouts
+    FROM anu_workouts
     WHERE workout_date BETWEEN %s AND %s
     GROUP BY workout_date, workout_type
     ORDER BY workout_date, workout_type
