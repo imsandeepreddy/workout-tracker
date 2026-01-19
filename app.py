@@ -191,7 +191,7 @@ def save_workout(workout_date, workout_type, data):
 
 def get_exercise_video(exercise_name):
     slug = exercise_name.lower().replace(" ", "-")
-    return f"https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/main/exercises/{slug}.mp4"
+    return f"https://raw.githubusercontent.com/imsandeepreddy/workout-tracker/feature/exercises/{slug}.mp4"
 
 # =========================
 # 🏋️ UI
